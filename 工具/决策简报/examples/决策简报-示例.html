@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="决策简报 1.0">
+<title>第 2 轮决策简报 · 河畔书屋借阅小程序（虚构示例）</title>
+<style>
+:root{--desk:#e6e9ec;--sheet:#fff;--ink:#23272b;--muted:#646d75;--rule:#d6dbe0;--rule-soft:#eceff2;--panel:#f4f6f7;--red:#bd3521;--red-soft:#fbeae6;--hl:#f6e59a;--hl-ink:#5c4700;--amber:#7a5a12;--amber-soft:#f3ead3;--blue:#1d5a96;--green:#2c6a44;
+--drafting:"FangSong","STFangsong","仿宋",serif;--sans:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB","Noto Sans SC",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{background:var(--desk)}
+body{margin:0;color:var(--ink);font:14.5px/1.5 var(--sans)}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.sheet{max-width:1480px;margin:12px auto 40px;background:var(--sheet);border:1px solid var(--ink)}
+.head{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:32px;align-items:start;padding:14px 26px 12px;border-bottom:1.5px solid var(--ink)}
+h1{margin:0;font:400 28px/1.25 var(--drafting);letter-spacing:.08em}
+.headline{margin:6px 0 0;font-size:17px;font-weight:600}
+.scope{margin:5px 0 0;color:var(--muted);font-size:13.5px}
+.tb{border-collapse:collapse;font-size:13px;width:auto;margin:2px 0 0;background:var(--sheet)}
+.tb th,.tb td{border:1px solid var(--ink);padding:3px 10px;text-align:left;vertical-align:middle;font-weight:400;white-space:nowrap}
+.tb th{font:400 14.5px/1.4 var(--drafting);color:var(--muted);background:var(--sheet)}
+.ask{margin:12px 26px 0;padding:6px 14px 8px;border-left:4px solid var(--red);background:var(--red-soft)}
+.ask.none{border-left-color:#9aa3ab;background:var(--panel);display:flex;align-items:baseline;column-gap:16px}
+.ask h2{margin:0;font:400 18px/1.5 var(--drafting);display:flex;flex-wrap:wrap;align-items:baseline;column-gap:12px}
+.ask p{margin:0}
+.ask .row{border-bottom-color:rgba(189,53,33,.18)}
+.ask .row:last-child{border-bottom:0}
+.board{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);margin:12px 26px 0}
+.col{min-width:0;padding-right:24px}
+.col+.col{padding:0 0 0 24px;border-left:1px solid var(--rule)}
+.sec{margin-bottom:14px}
+.sec>h2{margin:0;padding-bottom:3px;border-bottom:1.5px solid var(--ink);font:400 19px/1.45 var(--drafting);display:flex;flex-wrap:wrap;align-items:baseline;column-gap:12px}
+h2 .n{font:400 12.5px/1.4 var(--sans);color:var(--muted)}
+.row{border-bottom:1px solid var(--rule-soft)}
+.row>summary,.row.plain{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:start;padding:4px 2px 4px 18px;position:relative}
+.row>summary{list-style:none;cursor:pointer}
+.row>summary::-webkit-details-marker{display:none}
+.row>summary::before{content:"";position:absolute;left:4px;top:11px;border-style:solid;border-width:4px 0 4px 6px;border-color:transparent transparent transparent #8b949c;transition:transform .15s}
+.row[open]>summary::before{transform:rotate(90deg)}
+.row>summary:hover{background:rgba(35,39,43,.04)}
+.pair{display:grid;grid-template-columns:8em minmax(0,1fr);column-gap:14px}
+.topic{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick{font-weight:600}
+del{color:var(--muted);text-decoration-color:var(--red);text-decoration-thickness:1.5px;font-weight:400}
+.marks{display:flex;gap:6px;padding-top:1px}
+.mk{font-size:12px;line-height:20px;padding:0 6px;white-space:nowrap;color:var(--muted);background:var(--panel)}
+.mk.pre{background:var(--hl);color:var(--hl-ink)}
+.mk.rev{background:none;color:var(--red);padding:0 2px}
+.mk.no{background:var(--red-soft);color:var(--red)}
+.mk.defer{background:var(--amber-soft);color:var(--amber)}
+.mk.you{background:var(--red);color:#fff}
+.empty{margin:0;padding:6px 2px 6px 18px;color:var(--muted)}
+.note{margin:6px 0 0;padding:0 2px 0 18px;font-size:13px;color:var(--muted)}
+.why{font-size:12.5px;color:var(--muted);margin-left:6px;font-weight:400}
+.label{display:inline-block;font-size:12.5px;color:var(--muted);margin-right:8px}
+.detail{margin:0 0 10px 18px;padding:6px 14px 8px;background:var(--panel);border-left:2px solid var(--ink);font-size:14px;font-weight:400}
+.f{display:grid;grid-template-columns:6.5em minmax(0,1fr);column-gap:14px;padding:6px 0;border-top:1px solid #e0e4e8}
+.f:first-child{border-top:0}
+.f>.k{font:400 15px/1.5 var(--drafting);color:var(--muted)}
+.v p,.detail>p{margin:0 0 4px}.v ul,.v ol,.detail>ul{margin:0 0 4px;padding-left:1.3em}.v li,.detail li{margin:1px 0}.v h4{margin:6px 0 2px;font-size:13.5px}
+.v ul.lines{list-style:none;padding-left:0}
+.kv{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0 0 4px}
+.kv div{display:flex;gap:8px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+.st{font-weight:600}.st.ok{color:var(--green)}.st.open{color:#8a5a00}.st.no{color:var(--red)}.st.defer{color:var(--amber)}.st.old{color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:2px 0 4px;background:var(--sheet)}
+th,td{border:1px solid var(--rule);padding:4px 8px;text-align:left;vertical-align:top}
+thead th{background:#f1f3f5;font-weight:600}
+.tablewrap{overflow-x:auto}
+.foot{margin:6px 26px 0;padding:10px 0 16px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.foot p{margin:3px 0}
+.flash{animation:flash 1.8s ease-out}
+@keyframes flash{from{background:#fff2b0}to{background:transparent}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}.row>summary::before{transition:none}}
+@media (max-width:980px){.sheet{margin:0;border:0}.head{grid-template-columns:1fr;row-gap:10px;padding:12px 14px}.tb th,.tb td{white-space:normal}.ask,.board,.foot{margin-left:14px;margin-right:14px}.board{grid-template-columns:1fr}.col,.col+.col{display:contents}#decided{order:1}#changed{order:2}#pending{order:3}#next{order:4}.pair{grid-template-columns:6em minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="sheet">
+<header class="head">
+<div class="title">
+<h1>第 2 轮决策简报</h1>
+<p class="headline">本轮定了 3 项（其中否决 1 项），改了 2 处旧决定，1 项带前提；未定 1 项，暂缓 1 项。</p>
+<p class="scope"><span class="label">本轮范围</span>借阅规则收尾：借阅上限、逾期处理和押金；离线借书先放一放</p>
+</div>
+<table class="tb"><tbody>
+<tr><th>项目</th><td>河畔书屋借阅小程序（虚构示例）</td><th>日期</th><td>2026-09-19</td></tr>
+<tr><th>轮次</th><td>第 2 轮</td><th>上一轮</th><td><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E9%A1%B9%E7%9B%AE%E6%80%BB%E8%A7%88/html/%E5%86%B3%E7%AD%96%E7%AE%80%E6%8A%A5-%E7%AC%AC1%E8%BD%AE-20260912.html">第 1 轮决策简报</a></td></tr>
+</tbody></table>
+</header>
+<section class="ask" id="ask"><h2>① 要你决定<span class="n">1 项，点开看选项、代价和推荐</span></h2><details class="row" id="ask-1"><summary><span class="main"><span class="pick">志愿者要不要单独的管理账号？</span></span></summary><div class="detail"><ul><li>选项一：每人一个账号。代价：多三天开发（示例）</li><li>选项二：共用前台账号。代价：出了错查不到是谁</li><li>选项三：什么都不做。代价：志愿者只能纸本登记，周一再补录</li><li>推荐选项一：周末借还约占一半（示例），出错要能查到人</li><li>请在 2026-10-01 之前定；不定会挡住“志愿者值班”那张施工票</li><li>详情见<a class="ref" href="#card-2-07">「志愿者账号」</a></li></ul></div></details></section>
+<main class="board">
+<div class="col">
+<section class="sec" id="decided"><h2>② 本轮定了什么<span class="n">3 项，其中否决 1 项；点开看选项、理由、影响和依据</span></h2><details class="row" id="card-1-03"><summary><span class="main"><span class="pair"><span class="topic" title="逾期处理：只提醒，不罚款">逾期处理</span><span class="pick">只提醒，不罚款</span></span></span><span class="marks"><span class="mk pre">带前提</span><span class="mk rev">△ 改了旧决定</span></span></summary><div class="detail"><div class="f"><div class="k">状态与批准</div><div class="v"><dl class="kv"><div><dt>状态</dt><dd><span class="st ok">已定</span></dd></div><div><dt>定于</dt><dd>2026-09-15</dd></div><div><dt>谁定的</dt><dd>馆长（示例）</dd></div><div><dt>出处</dt><dd><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E7%AC%AC2%E8%BD%AE%E8%AE%A8%E8%AE%BA%E8%AE%B0%E5%BD%95.md">第 2 轮讨论记录（示例）</a> 第 1 条</dd></div></dl></div></div><div class="f"><div class="k">问题</div><div class="v"><p>书还晚了怎么办？书屋章程原来写的是每天罚 1 毛，但一直没人真去收。</p></div></div><div class="f"><div class="k">比较过的选项</div><div class="v"><div class="tablewrap"><table><thead><tr><th>做法</th><th>好处</th><th>代价与风险</th><th>排除理由</th></tr></thead><tbody><tr><td>只提醒，不罚款</td><td>读者没有负担；前台不用收零钱</td><td>可能有人拖着不还</td><td>（选定）</td></tr><tr><td>按章程每天罚 1 毛</td><td>有约束力</td><td>要收零钱、开收据；居民有意见</td><td>收钱的麻烦比丢书的损失大</td></tr><tr><td>逾期停借</td><td>不涉及钱</td><td>系统要多做一套停借规则</td><td>本期不多做功能，先看提醒的效果</td></tr></tbody></table></div></div></div><div class="f"><div class="k">选择与理由</div><div class="v"><p>只提醒、不罚款。书屋靠邻里信任运转，提醒到位多数人会还；收罚款的麻烦比丢几本书更大。</p></div></div><div class="f"><div class="k">影响</div><div class="v"><ul><li>逾期罚款：每天 1 毛（书屋章程第 5 条） → 取消罚款 → 只发短信提醒</li><li>每月多约 20 条提醒短信（示例）。</li></ul></div></div><div class="f"><div class="k">前提</div><div class="v"><div class="tablewrap"><table><thead><tr><th>前提</th><th>谁负责满足</th><th>何时核实</th><th>不满足怎么办</th></tr></thead><tbody><tr><td>前台每周一核对一次逾期名单，超过两周的打电话提醒</td><td>前台管理员（示例）</td><td>试运行第一个月的每周一</td><td>改为逾期停借，另开一张卡</td></tr></tbody></table></div></div></div><div class="f"><div class="k">依据</div><div class="v"><ul class="lines"><li><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E7%AC%AC2%E8%BD%AE%E8%AE%A8%E8%AE%BA%E8%AE%B0%E5%BD%95.md">第 2 轮讨论记录（示例）</a></li><li><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E4%B9%A6%E5%B1%8B%E7%AB%A0%E7%A8%8B.md">书屋章程（示例）</a></li></ul></div></div><div class="f"><div class="k">关系</div><div class="v"><dl class="kv"><div><dt>依赖</dt><dd><a class="ref" href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%B4%A6%E5%8F%B7/%E5%86%B3%E7%AD%96%E5%8D%A1/01-%E7%99%BB%E5%BD%95%E6%96%B9%E5%BC%8F.md">「登录方式」</a></dd></div><div><dt>影响哪些卡</dt><dd>无</dd></div><div><dt>取代</dt><dd>无</dd></div></dl></div></div><div class="f"><div class="k">后续</div><div class="v"><ul class="lines"><li>前台管理员（示例）：9 月 22 日起每周一核对逾期名单</li><li>主控：试运行满一个月后，在施工日志记一次逾期未还的本数，2026-10-20 之前</li></ul></div></div><div class="f"><div class="k">暂缓原因</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">原文</div><div class="v"><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E5%80%9F%E9%98%85%E8%A7%84%E5%88%99/%E5%86%B3%E7%AD%96%E5%8D%A1/03-%E9%80%BE%E6%9C%9F%E5%A4%84%E7%90%86.md">打开这张卡的原文</a></div></div></div></details><details class="row" id="card-1-04"><summary><span class="main"><span class="pair"><span class="topic" title="押金：借书收 50 元押金">押金</span><span class="pick">借书收 50 元押金</span></span></span><span class="marks"><span class="mk no">否决</span></span></summary><div class="detail"><div class="f"><div class="k">状态与批准</div><div class="v"><dl class="kv"><div><dt>状态</dt><dd><span class="st no">否决</span></dd></div><div><dt>定于</dt><dd>2026-09-16</dd></div><div><dt>谁定的</dt><dd>馆长（示例）</dd></div><div><dt>出处</dt><dd><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E7%AC%AC2%E8%BD%AE%E8%AE%A8%E8%AE%BA%E8%AE%B0%E5%BD%95.md">第 2 轮讨论记录（示例）</a> 第 2 条</dd></div></dl></div></div><div class="f"><div class="k">问题</div><div class="v"><p>要不要收押金来防止丢书？</p></div></div><div class="f"><div class="k">比较过的选项</div><div class="v"><div class="tablewrap"><table><thead><tr><th>做法</th><th>好处</th><th>代价与风险</th><th>排除理由</th></tr></thead><tbody><tr><td>收 50 元押金</td><td>丢了书有赔偿</td><td>要管退押金、对账；会吓走一部分读者</td><td>馆长否决：管押金的工作量大于丢书的损失</td></tr><tr><td>不收押金</td><td>读者没有门槛</td><td>丢了书由书屋自己补</td><td>（否决押金后照现状）</td></tr></tbody></table></div></div></div><div class="f"><div class="k">选择与理由</div><div class="v"><p>否决收押金。去年丢书约 12 本（示例），补书花了约 400 元，比专人管押金省得多。</p></div></div><div class="f"><div class="k">影响</div><div class="v"><p>不收押金，丢书的补书费每年约 400 元（示例），列进运行费用。</p></div></div><div class="f"><div class="k">前提</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">依据</div><div class="v"><p><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E7%AC%AC2%E8%BD%AE%E8%AE%A8%E8%AE%BA%E8%AE%B0%E5%BD%95.md">第 2 轮讨论记录（示例）</a></p></div></div><div class="f"><div class="k">关系</div><div class="v"><dl class="kv"><div><dt>依赖</dt><dd>无</dd></div><div><dt>影响哪些卡</dt><dd>无</dd></div><div><dt>取代</dt><dd>无</dd></div></dl></div></div><div class="f"><div class="k">后续</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">暂缓原因</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">原文</div><div class="v"><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E5%80%9F%E9%98%85%E8%A7%84%E5%88%99/%E5%86%B3%E7%AD%96%E5%8D%A1/04-%E5%80%9F%E4%B9%A6%E6%8A%BC%E9%87%91.md">打开这张卡的原文</a></div></div></div></details><details class="row" id="card-1-06"><summary><span class="main"><span class="pair"><span class="topic" title="借阅上限：每人最多同时借 5 本">借阅上限</span><span class="pick">每人最多同时借 5 本</span></span></span><span class="marks"><span class="mk rev">△ 改了旧决定</span></span></summary><div class="detail"><div class="f"><div class="k">状态与批准</div><div class="v"><dl class="kv"><div><dt>状态</dt><dd><span class="st ok">已定</span></dd></div><div><dt>定于</dt><dd>2026-09-18</dd></div><div><dt>谁定的</dt><dd>馆长（示例）</dd></div><div><dt>出处</dt><dd><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E7%AC%AC2%E8%BD%AE%E8%AE%A8%E8%AE%BA%E8%AE%B0%E5%BD%95.md">第 2 轮讨论记录（示例）</a> 第 3 条</dd></div></dl></div></div><div class="f"><div class="k">问题</div><div class="v"><p>试运行两周，不少家长一次要给孩子借一摞绘本，3 本不够用。</p></div></div><div class="f"><div class="k">比较过的选项</div><div class="v"><div class="tablewrap"><table><thead><tr><th>做法</th><th>好处</th><th>代价与风险</th><th>排除理由</th></tr></thead><tbody><tr><td>放宽到 5 本</td><td>满足带孩子的家庭</td><td>同时在外的书变多，逾期提醒也会变多</td><td>（选定）</td></tr><tr><td>绘本另外再加 5 本</td><td>最贴合需求</td><td>系统要区分书的类别，改动大</td><td>本期不做分类</td></tr><tr><td>维持 3 本</td><td>不用改</td><td>家长会一直抱怨</td><td>试运行的反馈很明确</td></tr></tbody></table></div></div></div><div class="f"><div class="k">选择与理由</div><div class="v"><p>放宽到 5 本。改动只是一个数字，却解决了试运行里最多的抱怨。</p></div></div><div class="f"><div class="k">影响</div><div class="v"><ul><li>借阅上限：3 本 → 加 2 本 → 5 本</li><li>借阅证背面印的规则要重印，约 200 元（示例）。</li><li>同时在外的书变多，逾期提醒短信会略增。</li></ul></div></div><div class="f"><div class="k">前提</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">依据</div><div class="v"><ul class="lines"><li><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E8%AF%95%E8%BF%90%E8%A1%8C%E5%8F%8D%E9%A6%88.md">试运行两周反馈（示例）</a></li><li><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E7%AC%AC2%E8%BD%AE%E8%AE%A8%E8%AE%BA%E8%AE%B0%E5%BD%95.md">第 2 轮讨论记录（示例）</a></li></ul></div></div><div class="f"><div class="k">关系</div><div class="v"><dl class="kv"><div><dt>依赖</dt><dd>无</dd></div><div><dt>影响哪些卡</dt><dd><a class="ref" href="#card-1-03">「逾期处理」</a></dd></div><div><dt>取代</dt><dd><a class="ref" href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E5%80%9F%E9%98%85%E8%A7%84%E5%88%99/%E5%86%B3%E7%AD%96%E5%8D%A1/02-%E5%80%9F%E9%98%85%E4%B8%8A%E9%99%90%E4%B8%89%E6%9C%AC.md">「借阅上限 3 本」</a></dd></div></dl></div></div><div class="f"><div class="k">后续</div><div class="v"><p>主控：按新上限改借阅规则说明，通知重印借阅证，2026-09-22 之前</p></div></div><div class="f"><div class="k">暂缓原因</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">原文</div><div class="v"><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E5%80%9F%E9%98%85%E8%A7%84%E5%88%99/%E5%86%B3%E7%AD%96%E5%8D%A1/06-%E5%80%9F%E9%98%85%E4%B8%8A%E9%99%90%E4%BA%94%E6%9C%AC.md">打开这张卡的原文</a></div></div></div></details></section>
+<section class="sec" id="pending"><h2>④ 带前提或未定<span class="n">带前提 1 项，未定 1 项，暂缓 1 项</span></h2><details class="row" id="pre-card-1-03"><summary><span class="main"><span class="pair"><span class="topic" title="逾期处理：只提醒，不罚款">逾期处理</span><span class="pick">只提醒，不罚款</span></span></span><span class="marks"><span class="mk pre">带前提</span></span></summary><div class="detail"><div class="f"><div class="k">前提</div><div class="v"><div class="tablewrap"><table><thead><tr><th>前提</th><th>谁负责满足</th><th>何时核实</th><th>不满足怎么办</th></tr></thead><tbody><tr><td>前台每周一核对一次逾期名单，超过两周的打电话提醒</td><td>前台管理员（示例）</td><td>试运行第一个月的每周一</td><td>改为逾期停借，另开一张卡</td></tr></tbody></table></div></div></div><div class="f"><div class="k">完整决定</div><div class="v"><a class="ref" href="#card-1-03">「逾期处理：只提醒，不罚款」</a><span class="why">在“本轮定了什么”里</span></div></div></div></details><details class="row" id="card-2-07"><summary><span class="main"><span class="pick">志愿者要不要单独的管理账号</span></span><span class="marks"><span class="mk open">未定</span></span></summary><div class="detail"><div class="f"><div class="k">状态与批准</div><div class="v"><dl class="kv"><div><dt>状态</dt><dd><span class="st open">未定</span></dd></div><div><dt>定于</dt><dd>无</dd></div><div><dt>谁定的</dt><dd>无</dd></div><div><dt>出处</dt><dd>无</dd></div></dl></div></div><div class="f"><div class="k">问题</div><div class="v"><p>周末由志愿者值班。他们登记借还时用前台的账号，还是每人一个账号？</p></div></div><div class="f"><div class="k">比较过的选项</div><div class="v"><div class="tablewrap"><table><thead><tr><th>做法</th><th>好处</th><th>代价与风险</th><th>排除理由</th></tr></thead><tbody><tr><td>每人一个账号</td><td>出了错能查到是谁</td><td>要做账号和权限管理，开发约多三天（示例）</td><td>待定</td></tr><tr><td>共用前台账号</td><td>不用开发</td><td>出了错查不到人；密码要告诉志愿者</td><td>待定</td></tr><tr><td>什么都不做</td><td>不花钱</td><td>志愿者只能纸本登记，周一再补录</td><td>待定</td></tr></tbody></table></div></div></div><div class="f"><div class="k">选择与理由</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">影响</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">前提</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">依据</div><div class="v"><p><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E5%BF%97%E6%84%BF%E8%80%85%E6%8E%92%E7%8F%AD.md">志愿者排班表（示例）</a></p></div></div><div class="f"><div class="k">关系</div><div class="v"><dl class="kv"><div><dt>依赖</dt><dd><a class="ref" href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%B4%A6%E5%8F%B7/%E5%86%B3%E7%AD%96%E5%8D%A1/01-%E7%99%BB%E5%BD%95%E6%96%B9%E5%BC%8F.md">「登录方式」</a></dd></div><div><dt>影响哪些卡</dt><dd>无</dd></div><div><dt>取代</dt><dd>无</dd></div></dl></div></div><div class="f"><div class="k">后续</div><div class="v"><p>决策现场：带着三个选项找馆长定，2026-10-01 之前</p></div></div><div class="f"><div class="k">暂缓原因</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">原文</div><div class="v"><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%B4%A6%E5%8F%B7/%E5%86%B3%E7%AD%96%E5%8D%A1/07-%E5%BF%97%E6%84%BF%E8%80%85%E8%B4%A6%E5%8F%B7.md">打开这张卡的原文</a></div></div></div></details><details class="row" id="card-2-05"><summary><span class="main"><span class="pick">断网时是否允许离线借书</span></span><span class="marks"><span class="mk defer">暂缓</span></span></summary><div class="detail"><div class="f"><div class="k">状态与批准</div><div class="v"><dl class="kv"><div><dt>状态</dt><dd><span class="st defer">暂缓</span></dd></div><div><dt>定于</dt><dd>2026-09-17</dd></div><div><dt>谁定的</dt><dd>馆长（示例）</dd></div><div><dt>出处</dt><dd><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E7%AC%AC2%E8%BD%AE%E8%AE%A8%E8%AE%BA%E8%AE%B0%E5%BD%95.md">第 2 轮讨论记录（示例）</a> 第 4 条</dd></div></dl></div></div><div class="f"><div class="k">问题</div><div class="v"><p>书屋的网络偶尔会断。断网时前台要不要能先离线登记借书，网络恢复后再补传？</p></div></div><div class="f"><div class="k">比较过的选项</div><div class="v"><div class="tablewrap"><table><thead><tr><th>做法</th><th>好处</th><th>代价与风险</th><th>排除理由</th></tr></thead><tbody><tr><td>做离线登记</td><td>断网也能照常借</td><td>要处理补传时的冲突，开发约多一周（示例）</td><td>暂缓，先看断网有多频繁</td></tr><tr><td>断网时用纸本登记</td><td>不用开发</td><td>前台事后要手工补录</td><td>暂缓期间先这样做</td></tr></tbody></table></div></div></div><div class="f"><div class="k">选择与理由</div><div class="v"><p>暂不决定。查证结果是近三个月只断过两次（示例），先用纸本登记顶着。</p></div></div><div class="f"><div class="k">影响</div><div class="v"><p>暂缓期间断网时前台用纸本登记，网络恢复后手工补录。</p></div></div><div class="f"><div class="k">前提</div><div class="v"><p>无</p></div></div><div class="f"><div class="k">依据</div><div class="v"><ul class="lines"><li><a class="ref" href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%B4%A6%E5%8F%B7/%E5%86%B3%E7%AD%96%E5%8D%A1/08-%E7%BD%91%E7%BB%9C%E6%96%AD%E7%BA%BF%E6%9F%A5%E8%AF%81.md">「网络断线查证」</a></li><li><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E8%B5%84%E6%96%99/%E7%AC%AC2%E8%BD%AE%E8%AE%A8%E8%AE%BA%E8%AE%B0%E5%BD%95.md">第 2 轮讨论记录（示例）</a></li></ul></div></div><div class="f"><div class="k">关系</div><div class="v"><dl class="kv"><div><dt>依赖</dt><dd><a class="ref" href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%B4%A6%E5%8F%B7/%E5%86%B3%E7%AD%96%E5%8D%A1/08-%E7%BD%91%E7%BB%9C%E6%96%AD%E7%BA%BF%E6%9F%A5%E8%AF%81.md">「网络断线查证」</a></dd></div><div><dt>影响哪些卡</dt><dd>无</dd></div><div><dt>取代</dt><dd>无</dd></div></dl></div></div><div class="f"><div class="k">后续</div><div class="v"><p>前台管理员（示例）：试运行首月记下每次断网的时间和时长，2026-10-20 之前</p></div></div><div class="f"><div class="k">暂缓原因</div><div class="v"><p>断网很少，现在做离线登记不划算。试运行首月断网超过两次，或有一次超过半天，就重新提出。</p></div></div><div class="f"><div class="k">原文</div><div class="v"><a href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%B4%A6%E5%8F%B7/%E5%86%B3%E7%AD%96%E5%8D%A1/05-%E7%A6%BB%E7%BA%BF%E5%80%9F%E4%B9%A6.md">打开这张卡的原文</a></div></div></div></details><p class="note">另有研究卡 1 张，只查证不决定，不列在这里：<a class="ref" href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%B4%A6%E5%8F%B7/%E5%86%B3%E7%AD%96%E5%8D%A1/08-%E7%BD%91%E7%BB%9C%E6%96%AD%E7%BA%BF%E6%9F%A5%E8%AF%81.md">「书屋网络一个月断几次」</a></p></section>
+</div>
+<div class="col">
+<section class="sec" id="changed"><h2>③ 改了哪些旧决定<span class="n">2 处</span></h2><details class="row" id="chg-1"><summary><span class="main"><span class="pair"><span class="topic" title="逾期罚款">逾期罚款</span><span class="pick"><del>每天 1 毛（书屋章程第 5 条）</del> → 只发短信提醒</span></span></span></summary><div class="detail"><div class="f"><div class="k">改动</div><div class="v"><dl class="kv"><div><dt>原值</dt><dd>每天 1 毛（书屋章程第 5 条）</dd></div><div><dt>本次</dt><dd>取消罚款</dd></div><div><dt>新值</dt><dd>只发短信提醒</dd></div></dl></div></div><div class="f"><div class="k">新决定</div><div class="v"><a class="ref" href="#card-1-03">「逾期处理：只提醒，不罚款」</a><span class="why">定于 2026-09-15，点开看选项、理由和依据</span></div></div><div class="f"><div class="k">新卡取代的卡</div><div class="v">无<span class="why">这一处改的不是决策卡</span></div></div><div class="f"><div class="k">原因</div><div class="v"><p>只提醒、不罚款。书屋靠邻里信任运转，提醒到位多数人会还；收罚款的麻烦比丢几本书更大。</p></div></div></div></details><details class="row" id="chg-2"><summary><span class="main"><span class="pair"><span class="topic" title="借阅上限">借阅上限</span><span class="pick"><del>3 本</del> → 5 本</span></span></span></summary><div class="detail"><div class="f"><div class="k">改动</div><div class="v"><dl class="kv"><div><dt>原值</dt><dd>3 本</dd></div><div><dt>本次</dt><dd>加 2 本</dd></div><div><dt>新值</dt><dd>5 本</dd></div></dl></div></div><div class="f"><div class="k">新决定</div><div class="v"><a class="ref" href="#card-1-06">「借阅上限：每人最多同时借 5 本」</a><span class="why">定于 2026-09-18，点开看选项、理由和依据</span></div></div><div class="f"><div class="k">新卡取代的卡</div><div class="v"><a class="ref" href="%E7%A4%BA%E4%BE%8B%E9%A1%B9%E7%9B%AE/%E4%B8%93%E9%A2%98%E5%B7%A5%E4%BD%9C/%E5%80%9F%E9%98%85%E8%A7%84%E5%88%99/%E5%86%B3%E7%AD%96%E5%8D%A1/02-%E5%80%9F%E9%98%85%E4%B8%8A%E9%99%90%E4%B8%89%E6%9C%AC.md">「借阅上限：每人最多同时借 3 本」</a></div></div><div class="f"><div class="k">原因</div><div class="v"><p>放宽到 5 本。改动只是一个数字，却解决了试运行里最多的抱怨。</p></div></div></div></details></section>
+<section class="sec" id="next"><h2>⑤ 下一步<span class="n">3 条</span></h2><div class="row plain" id="next-1"><span class="main"><span class="pick">主控：按新的借阅上限改借阅规则说明，通知重印借阅证，2026-09-22 之前</span></span></div><div class="row plain" id="next-2"><span class="main"><span class="pick">前台管理员（示例）：9 月 22 日起每周一核对逾期名单</span></span></div><div class="row plain" id="next-3"><span class="main"><span class="pick">用户：2026-10-01 之前定志愿者账号，见“要你决定”</span></span><span class="marks"><span class="mk you">涉及你</span></span></div></section>
+</div>
+</main>
+<footer class="foot">
+<p>本页由决策简报 1.0 从项目的决策地图和决策卡生成，只读这些文件；决定以卡为准，改决定请改卡，再重新生成。</p>
+<p>链接自检：指向文件的链接 24 处，指向 13 个文件，全部存在；页内跳转 5 处，目标都在。</p>
+</footer>
+</div>
+<script>
+(function () {
+  function openTarget(id) {
+    var el = id && document.getElementById(id);
+    if (!el) return;
+    for (var node = el; node; node = node.parentElement) if (node.tagName === 'DETAILS') node.open = true;
+    el.scrollIntoView({ block: 'start' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  document.addEventListener('click', function (event) {
+    var link = event.target.closest && event.target.closest('a[href^="#"]');
+    if (!link) return;
+    var id = decodeURIComponent(link.getAttribute('href').slice(1));
+    if (!document.getElementById(id)) return;
+    event.preventDefault();
+    history.pushState(null, '', '#' + id);
+    openTarget(id);
+  });
+  window.addEventListener('hashchange', function () { openTarget(decodeURIComponent(location.hash.slice(1))); });
+  if (location.hash) openTarget(decodeURIComponent(location.hash.slice(1)));
+})();
+</script>
+</body>
+</html>

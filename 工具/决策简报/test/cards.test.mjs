@@ -1,4 +1,4 @@
-// 读卡与报错：附录 A、B 的标签和段落、状态五值、取代与反查、链接自检、轮次范围。
+// 读卡与报错：决策卡写法的标签和段落、地图头、状态五值、取代与反查、改旧决定的写法、链接自检、轮次范围。
 // 每个测试把 examples/ 整份复制到临时目录，只改副本。
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -45,7 +45,7 @@ function fails(s) {
 
 const detailOf = (html, id) => (new RegExp(`<details class="row" id="${id}">[\\s\\S]*?</details>`).exec(html) || [''])[0];
 
-test('样本：附录 A 的标签和段落、附录 B 的地图头都读到了', (t) => {
+test('样本：卡的标签和段落、地图 MD 的头字段都读到了', (t) => {
   const s = sample(t);
   const { map, cards } = loadProject(s.root);
   const card = Object.fromEntries(cards.map((c) => [c.num, c]));
@@ -159,10 +159,29 @@ test('影响哪些卡：卡上写的照显示；别的卡的“依赖”写了�
   assert.match(detailOf(html, 'card-1-06'), /<dt>影响哪些卡<\/dt><dd><a class="ref" href="#card-1-03">「逾期处理」<\/a><\/dd>/);
 });
 
-test('“影响”里带箭头的行要写成三段', (t) => {
+test('改旧决定只认整行“原值 → 本次 → 新值”：引号里的箭头、表格行是说明文字，不算也不提示', (t) => {
   const s = sample(t);
-  edit(s.card('rule', '06-借阅上限五本.md'), '借阅上限：3 本 → 加 2 本 → 5 本', '借阅上限：3 本 → 5 本');
-  assert.match(fails(s), /06-借阅上限五本\.md\n {2}- “影响”里带“→”的行是改旧决定的写法，要写成“原值 → 本次 → 新值”三段；不是改旧决定就换别的写法：借阅上限：3 本 → 5 本\n/);
+  edit(s.card('rule', '06-借阅上限五本.md'), '- 同时在外的书变多，逾期提醒短信会略增。\n',
+    '- 同时在外的书变多，逾期提醒短信会略增。\n- 按“原值 → 本次 → 新值”写了第一行；`旧 → 中 → 新` 这样的也只是说明。\n\n| 项目 | 变化 |\n|---|---|\n| 借阅证 | 旧版 → 加印规则 → 新版 |\n');
+  const r = run(s);
+  assert.equal(r.status, 0, r.stderr);
+  assert.doesNotMatch(r.stdout, /没有算作改旧决定/);
+  const card = loadProject(s.root).cards.find((c) => c.num === '06');
+  assert.deepEqual(card.changes, [{ subject: '借阅上限', from: '3 本', delta: '加 2 本', to: '5 本' }]);
+  assert.deepEqual(card.loose, []);
+});
+
+test('引号外带“→”却拆不成三段、引号没配对的行：不报错，照常显示，不算改旧决定，终端提示', (t) => {
+  const s = sample(t);
+  const six = s.card('rule', '06-借阅上限五本.md');
+  edit(six, '借阅上限：3 本 → 加 2 本 → 5 本', '借阅上限：3 本 → 5 本');
+  edit(six, '- 同时在外的书变多，逾期提醒短信会略增。\n', '- 同时在外的书变多，逾期提醒短信会略增。\n- 借书流程：登记 → 核对 → 借出 → 归还\n- 借阅证：“旧版" → 加印规则 → 新版\n');
+  const r = run(s);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /提示：专题工作\/借阅规则\/决策卡\/06-借阅上限五本\.md 的“影响”里这些带“→”的行照常显示，没有算作改旧决定（改旧决定要整行写成“原值 → 本次 → 新值”，引号要成对）：借阅上限：3 本 → 5 本 \/ 借书流程：登记 → 核对 → 借出 → 归还 \/ 借阅证：“旧版" → 加印规则 → 新版\n/);
+  const { html, brief } = buildBrief({ source: s.root, output: s.output });
+  assert.deepEqual(brief.cards.find((c) => c.num === '06').changes, []);
+  assert.match(detailOf(html, 'card-1-06'), /<li>借阅上限：3 本 → 5 本<\/li>/, '这一行照常显示在详情的“影响”里');
 });
 
 test('只有表头、没有数据行的表格算空段落', (t) => {
@@ -227,7 +246,7 @@ test('不挡生成、但简报不显示的东西在终端提示：多余段落�
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /提示：专题工作\/借阅规则\/决策卡\/9-打印机\.md 的文件名不是“NN-名称\.md”，没有当作决策卡读/);
   assert.match(r.stdout, /提示：专题工作\/借阅规则\/决策卡\/03-逾期处理\.md 开头有不属于任何标签的行，简报不显示：备注：试运行三个月后再议一次（示例）/);
-  assert.match(r.stdout, /提示：专题工作\/借阅规则\/决策卡\/04-借书押金\.md 的 “## 查证结论” 不是附录 A 的段落，简报不显示/);
+  assert.match(r.stdout, /提示：专题工作\/借阅规则\/决策卡\/04-借书押金\.md 的 “## 查证结论” 不是决策卡写法里的段落，简报不显示/);
   assert.match(r.stdout, /提示：专题工作\/借阅规则\/决策卡\/06-借阅上限五本\.md 定于 2026-09-20，晚于本轮轮次日期 2026-09-19，本轮首屏不显示/);
 });
 
@@ -249,6 +268,19 @@ test('链接自检：页面里的链接指向的文件不存在或写成绝对�
   assert.match(err, /06-借阅上限五本\.md\n {2}- “依据”链接指向的文件不存在：\.\.\/\.\.\/\.\.\/资料\/不存在\.md\n/);
   assert.match(err, /03-逾期处理\.md\n {2}- “依据”要用相对链接：D:\/资料\/书屋章程\.md\n/);
   assert.match(err, /决策地图\.md\n {2}- “上一轮简报”链接指向的文件不存在：\.\.\/html\/决策简报-第1轮-20260911\.html\n/);
+});
+
+test('研究卡不上页面，卡里的链接照样核对：终端写出处数；文件不存在、写成绝对路径都报错停止', (t) => {
+  const s = sample(t);
+  const r = run(s);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /链接自检：.+目标都在。全部研究卡 1 张（含被取代的）不上页面，卡里指向文件的链接 2 处也都存在。\n/);
+
+  const s2 = sample(t);
+  const eight = s2.card('sys', '08-网络断线查证.md');
+  edit(eight, '(../../../资料/路由器记录.md)', '(../../../资料/不存在.md)');
+  edit(eight, '先查清书屋的网络实际多久断一次。', '先查清书屋的网络实际多久断一次，见[路由器说明](D:/资料/路由器.md)。');
+  assert.match(fails(s2), /08-网络断线查证\.md\n {2}- “问题”要用相对链接：D:\/资料\/路由器\.md\n {2}- “依据”链接指向的文件不存在：\.\.\/\.\.\/\.\.\/资料\/不存在\.md\n/);
 });
 
 test('轮次范围：上一轮简报的日期之后到本轮日期；首轮写“无”时本轮日期以前的都算', (t) => {

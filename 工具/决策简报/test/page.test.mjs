@@ -1,4 +1,4 @@
-// 页面：首屏五栏放对了卡、详情锚点都在、全中文、样本生成幂等、只写输出文件、命令行。
+// 页面：首屏五栏放对了卡、详情锚点都在、全中文、样本生成幂等、只写输出文件、只查不写、命令行。
 // 每个测试把 examples/ 整份复制到临时目录，只改副本。
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -70,7 +70,7 @@ test('首屏五栏：卡放对了栏，标记对，每条都有详情锚点', (t
   assert.match(change, /<div class="k">新卡取代的卡<\/div><div class="v"><a class="ref" href="[^"#]+02-[^"]+\.md">「借阅上限：每人最多同时借 3 本」<\/a><\/div>/);
   assert.match(change, /<div class="k">原因<\/div><div class="v"><p>放宽到 5 本。/);
 
-  // 放上首屏的每张卡，点开都有附录 A 的各段（研究卡以外）
+  // 放上首屏的每张卡，点开都有决策卡写法的各段（研究卡以外）
   for (const id of ['card-1-03', 'card-1-04', 'card-1-06', 'card-2-07', 'card-2-05']) {
     const detail = detailOf(html, id);
     for (const k of ['状态与批准', '问题', '比较过的选项', '选择与理由', '影响', '前提', '依据', '关系', '后续', '暂缓原因', '原文']) {
@@ -139,6 +139,35 @@ test('只写 --output 这一个文件，项目里的文件一个不动', (t) => 
   assert.deepEqual(before.filter((row) => !after.includes(row)), []);
   assert.deepEqual(after.filter((row) => !before.includes(row)).map((row) => row.split('|')[0]), ['测试输出.html']);
   assert.match(r.stdout, /第 2 轮，2026-09-19：定了 3 项（其中否决 1 项），改了旧决定 2 处，带前提 1 项，未定 1 项，暂缓 1 项；研究卡 1 张不上首屏/);
+});
+
+test('只查不写：--check 报的计数、链接自检和提示与正常运行相同，退出码 0，一个文件都不写', (t) => {
+  const s = sample(t);
+  const before = tree(s.dir);
+  const r = spawnSync(process.execPath, [script, '--check', s.root], { encoding: 'utf8', windowsHide: true });
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(tree(s.dir), before);
+  const [head, ...rest] = r.stdout.split('\n');
+  assert.equal(head, '决策简报：只查不写，没有读不出或对不上的，可以生成；没有写任何文件。');
+  const normal = run(s);
+  assert.equal(normal.status, 0, normal.stderr);
+  assert.deepEqual(rest, normal.stdout.split('\n').slice(1));
+});
+
+test('只查不写：有问题时报同样的清单，退出码 1，不写文件；不和 --source、--output 一起用', (t) => {
+  const s = sample(t);
+  const six = path.join(s.root, '专题工作', '借阅规则', '决策卡', '06-借阅上限五本.md');
+  fs.writeFileSync(six, fs.readFileSync(six, 'utf8').replace('状态：已定\n', ''));
+  const before = tree(s.dir);
+  const r = spawnSync(process.execPath, [script, '--check', s.root], { encoding: 'utf8', windowsHide: true });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /^决策简报：下面这些读不出或对不上，没有生成页面。[\s\S]*06-借阅上限五本\.md\n {2}- 缺标签：状态\n[\s\S]*共 1 处。/);
+  assert.deepEqual(tree(s.dir), before);
+
+  const mixed = spawnSync(process.execPath, [script, '--check', s.root, '--output', s.output], { encoding: 'utf8', windowsHide: true });
+  assert.equal(mixed.status, 1);
+  assert.match(mixed.stderr, /只查不写用 node brief\.mjs --check <项目根>，不和前两项一起用/);
+  assert.equal(fs.existsSync(s.output), false);
 });
 
 test('命令行：少参数、输出目录不存在都报错，退出码 1', (t) => {

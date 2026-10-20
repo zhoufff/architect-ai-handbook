@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// 决策简报 1.0：读项目的地图 MD 和决策卡，生成一页精简版决策简报（HTML）。
-// 用法：node brief.mjs --source <项目根> --output <HTML 路径>
-// 零依赖，Node 18 及以上。只读项目文件，只写 --output 这一个文件；输出目录要已存在，且和项目在同一个盘（页面里全是相对链接）。
-// 卡和地图 MD 按共享规程 03 的“决策卡写法”读（规则票附录 A、B）。必填的标签或段落读不出、状态不在五值内、取代关系两边对不上、
-// 页面里的链接指向的文件不存在：一次列出哪个文件缺什么，退出码 1，不写页面，不猜。写“无”的照样显示“无”。
+// 决策简报 1.0.1：读项目的地图 MD 和决策卡，生成一页精简版决策简报（HTML）。
+// 用法：node brief.mjs --source <项目根> --output <HTML 路径>；只查不写：node brief.mjs --check <项目根>
+// 零依赖，Node 18 及以上。只读项目文件，只写 --output 这一个文件，--check 什么都不写；输出目录要已存在，且和项目在同一个盘（页面里全是相对链接）。
+// 卡和地图 MD 按共享规程 03 的“决策卡写法”读。必填的标签或段落读不出、状态不在五值内、取代关系两边对不上、
+// 页面里和研究卡里的链接指向的文件不存在：一次列出哪个文件缺什么，退出码 1，不写页面，不猜。写“无”的照样显示“无”。
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -138,6 +138,22 @@ function readStatus(text) {
   return null;
 }
 
+// 按引号和行内代码以外的“→”把一行切开；引号里的箭头是在说写法，不切。引号没配对时返回 null
+const QUOTES = { '“': '”', '‘': '’', '「': '」', '『': '』', '"': '"', '`': '`' };
+function arrowParts(text) {
+  const parts = [];
+  let start = 0;
+  let close = null;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (close) { if (ch === close) close = null; continue; }
+    if (QUOTES[ch]) close = QUOTES[ch];
+    else if (ch === '→') { parts.push(text.slice(start, i).trim()); start = i + 1; }
+  }
+  parts.push(text.slice(start).trim());
+  return close ? null : parts;
+}
+
 function readCard(file, meta, problems) {
   const add = (message) => problems.add(file, message);
   const doc = splitDoc(readText(file));
@@ -204,13 +220,18 @@ function readCard(file, meta, problems) {
   if (card.status === '暂缓' && card.sections.has('暂缓原因') && noneIn('暂缓原因')) add('状态是暂缓，“暂缓原因”要写为什么不定、什么情况下重新考虑');
   card.premised = card.sections.has('前提') && hasContent(card.sections.get('前提')) && !noneIn('前提');
 
-  // 影响里改旧决定的写法：“原值 → 本次 → 新值”，第一段可以带“某项：”
+  // 影响里改旧决定的写法：整行“原值 → 本次 → 新值”，第一段可以带“某项：”。去掉列表符号后，
+  // 引号和行内代码以外正好两个“→”、三段都有内容才算；表格行、引号里的箭头是说明文字，不算。
+  // 引号外带“→”却不合这条的行、引号没配对的行照常显示，记进 loose，成功时提示
   card.changes = [];
+  card.loose = [];
   for (const raw of card.sections.get('影响') || []) {
     if (!raw.includes('→')) continue;
     const text = raw.trim().replace(/^(?:[-*]|\d+[.)])\s+/, '').replace(/\*\*/g, '');
-    const parts = text.split('→').map((part) => part.trim());
-    if (parts.length !== 3 || parts.some((part) => !part)) { add(`“影响”里带“→”的行是改旧决定的写法，要写成“原值 → 本次 → 新值”三段；不是改旧决定就换别的写法：${text}`); continue; }
+    if (text.startsWith('|')) continue;
+    const parts = arrowParts(text);
+    if (parts && parts.length === 1) continue;
+    if (!parts || parts.length !== 3 || parts.some((part) => !part)) { card.loose.push(text); continue; }
     const lead = /^([^：]+)：\s*(.+)$/.exec(parts[0]);
     card.changes.push({
       subject: lead && lead[1] !== '原值' ? lead[1] : null,
@@ -325,7 +346,8 @@ export function loadProject(source) {
   for (const card of cards) {
     const rel = slash(path.relative(source, card.file));
     if (card.stray.length) notes.push(`${rel} 开头有不属于任何标签的行，简报不显示：${card.stray.join(' / ')}`);
-    if (card.extra.length) notes.push(`${rel} 的 ${card.extra.map((name) => `“## ${name}”`).join('、')} 不是附录 A 的段落，简报不显示`);
+    if (card.extra.length) notes.push(`${rel} 的 ${card.extra.map((name) => `“## ${name}”`).join('、')} 不是决策卡写法里的段落，简报不显示`);
+    if (card.loose.length) notes.push(`${rel} 的“影响”里这些带“→”的行照常显示，没有算作改旧决定（改旧决定要整行写成“原值 → 本次 → 新值”，引号要成对）：${card.loose.join(' / ')}`);
   }
   return { source, map, cards, notes };
 }
@@ -451,6 +473,7 @@ function linkHtml(label, href, ctx) {
   const where = ctx.where ? `“${ctx.where}”` : '';
   if (target.kind === 'absolute') { ctx.brief.problems.add(ctx.file, `${where}要用相对链接：${href}`); return esc(label); }
   if (!fs.existsSync(target.abs)) { ctx.brief.problems.add(ctx.file, `${where}链接指向的文件不存在：${href}`); return esc(label); }
+  ctx.brief.linked += 1;
   const card = ctx.brief.cardByKey.get(fileKey(target.abs));
   if (card) return cardLink(card, ctx.brief, label);
   return `<a href="${fileHref(target.abs, ctx.brief)}${target.hash ? `#${esc(target.hash)}` : ''}">${esc(label)}</a>`;
@@ -512,7 +535,7 @@ function relations(card, brief) {
   return kv([['依赖', join(links('依赖'))], ['影响哪些卡', join([...links('影响哪些卡'), ...derived])], ['取代', join(links('取代'))]]);
 }
 
-// 一张卡的详情：附录 A 的各段，照卡上的写法；“无”照样显示
+// 一张卡的详情：决策卡写法的各段，照卡上的写法；“无”照样显示
 function cardDetail(card, brief) {
   const lines = (label, list) => list.map((line) => inline(line, cardCtx(card, brief, label))).join('<br>');
   const approval = kv([
@@ -697,6 +720,7 @@ const linkLine = (check) => `指向文件的链接 ${check.fileRefs} 处，指�
 
 // 版式沿用原型精简版：白纸图框、右上角图签、栏目名用施工图常用的长仿宋；
 // 改了旧决定用红色三角和删除线（红线批注），带前提用荧光黄，否决用红，暂缓用土黄，涉及你用红底
+// 行距和留白按“本轮定了什么”有 12 项时 1366×768 仍一屏收紧，实测见 1.0.1 票的施工记录
 const CSS = `
 :root{--desk:#e6e9ec;--sheet:#fff;--ink:#23272b;--muted:#646d75;--rule:#d6dbe0;--rule-soft:#eceff2;--panel:#f4f6f7;--red:#bd3521;--red-soft:#fbeae6;--hl:#f6e59a;--hl-ink:#5c4700;--amber:#7a5a12;--amber-soft:#f3ead3;--blue:#1d5a96;--green:#2c6a44;
 --drafting:"FangSong","STFangsong","仿宋",serif;--sans:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB","Noto Sans SC",system-ui,sans-serif}
@@ -706,30 +730,30 @@ body{margin:0;color:var(--ink);font:14.5px/1.5 var(--sans)}
 a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 a:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .sheet{max-width:1480px;margin:12px auto 40px;background:var(--sheet);border:1px solid var(--ink)}
-.head{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:32px;align-items:start;padding:14px 26px 12px;border-bottom:1.5px solid var(--ink)}
+.head{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:32px;align-items:start;padding:12px 26px 10px;border-bottom:1.5px solid var(--ink)}
 h1{margin:0;font:400 28px/1.25 var(--drafting);letter-spacing:.08em}
 .headline{margin:6px 0 0;font-size:17px;font-weight:600}
 .scope{margin:5px 0 0;color:var(--muted);font-size:13.5px}
 .tb{border-collapse:collapse;font-size:13px;width:auto;margin:2px 0 0;background:var(--sheet)}
 .tb th,.tb td{border:1px solid var(--ink);padding:3px 10px;text-align:left;vertical-align:middle;font-weight:400;white-space:nowrap}
 .tb th{font:400 14.5px/1.4 var(--drafting);color:var(--muted);background:var(--sheet)}
-.ask{margin:12px 26px 0;padding:6px 14px 8px;border-left:4px solid var(--red);background:var(--red-soft)}
+.ask{margin:10px 26px 0;padding:5px 14px 6px;border-left:4px solid var(--red);background:var(--red-soft)}
 .ask.none{border-left-color:#9aa3ab;background:var(--panel);display:flex;align-items:baseline;column-gap:16px}
 .ask h2{margin:0;font:400 18px/1.5 var(--drafting);display:flex;flex-wrap:wrap;align-items:baseline;column-gap:12px}
 .ask p{margin:0}
 .ask .row{border-bottom-color:rgba(189,53,33,.18)}
 .ask .row:last-child{border-bottom:0}
-.board{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);margin:12px 26px 0}
+.board{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);margin:10px 26px 0}
 .col{min-width:0;padding-right:24px}
 .col+.col{padding:0 0 0 24px;border-left:1px solid var(--rule)}
-.sec{margin-bottom:14px}
+.sec{margin-bottom:10px}
 .sec>h2{margin:0;padding-bottom:3px;border-bottom:1.5px solid var(--ink);font:400 19px/1.45 var(--drafting);display:flex;flex-wrap:wrap;align-items:baseline;column-gap:12px}
 h2 .n{font:400 12.5px/1.4 var(--sans);color:var(--muted)}
 .row{border-bottom:1px solid var(--rule-soft)}
-.row>summary,.row.plain{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:start;padding:4px 2px 4px 18px;position:relative}
+.row>summary,.row.plain{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:start;padding:2px 2px 2px 18px;position:relative}
 .row>summary{list-style:none;cursor:pointer}
 .row>summary::-webkit-details-marker{display:none}
-.row>summary::before{content:"";position:absolute;left:4px;top:11px;border-style:solid;border-width:4px 0 4px 6px;border-color:transparent transparent transparent #8b949c;transition:transform .15s}
+.row>summary::before{content:"";position:absolute;left:4px;top:9px;border-style:solid;border-width:4px 0 4px 6px;border-color:transparent transparent transparent #8b949c;transition:transform .15s}
 .row[open]>summary::before{transform:rotate(90deg)}
 .row>summary:hover{background:rgba(35,39,43,.04)}
 .pair{display:grid;grid-template-columns:8em minmax(0,1fr);column-gap:14px}
@@ -794,17 +818,19 @@ const JS = `
 })();
 `;
 
-// 生成一页简报，返回 HTML（不写文件）；读不出或链接不对时抛 BriefError
+// 生成一页简报，返回 HTML（不写文件）；读不出或链接不对时抛 BriefError。
+// 不给 output 是只查不写：照样生成一遍来核对，链接按约定位置 项目总览/html/ 算，不查输出目录
 export function buildBrief({ source, output }) {
   source = path.resolve(source);
-  output = path.resolve(output);
+  const checkOnly = output === undefined;
+  output = checkOnly ? path.join(source, '项目总览', 'html', '决策简报.html') : path.resolve(output);
   const early = new Problems();
   if (!isDir(source)) early.add('', `项目根不存在：${source}`);
-  if (!isDir(path.dirname(output))) early.add('', `输出目录不存在：${path.dirname(output)}（生成器不建目录）`);
-  if (isDir(output)) early.add('', `输出路径是个目录：${output}（要写成 .html 文件的路径）`);
+  if (!checkOnly && !isDir(path.dirname(output))) early.add('', `输出目录不存在：${path.dirname(output)}（生成器不建目录）`);
+  if (!checkOnly && isDir(output)) early.add('', `输出路径是个目录：${output}（要写成 .html 文件的路径）`);
   if (early.size) throw new BriefError(early, source);
 
-  const brief = { ...loadProject(source), output, problems: new Problems() };
+  const brief = { ...loadProject(source), output, problems: new Problems(), linked: 0 };
   if (path.isAbsolute(path.relative(path.dirname(output), source))) {
     brief.problems.add('', `输出和项目不在同一个盘，页面里没法用相对链接：请把 --output 放在项目里（约定位置 项目总览/html/）`);
     throw new BriefError(brief.problems, source);
@@ -825,6 +851,11 @@ ${renderChanges(brief)}
 ${renderNext(brief)}
 </div>
 </main>`;
+  // 研究卡不上首屏、没有详情：照详情的写法走一遍再丢掉，卡里的链接就和页面上的一样核对（相对链接、文件存在）
+  const research = brief.cards.filter((card) => card.kind === 'research');
+  const linked = brief.linked;
+  research.forEach((card) => cardDetail(card, brief));
+  brief.researchLinks = { cards: research.length, refs: brief.linked - linked };
   if (brief.problems.size) throw new BriefError(brief.problems, source);
 
   let html = `<!doctype html>
@@ -832,7 +863,7 @@ ${renderNext(brief)}
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="generator" content="决策简报 1.0">
+<meta name="generator" content="决策简报 1.0.1">
 <title>${esc(`${roundName(brief.map.round.n)}决策简报 · ${brief.project}`)}</title>
 <style>${CSS}</style>
 </head>
@@ -840,7 +871,7 @@ ${renderNext(brief)}
 <div class="sheet">
 ${body}
 <footer class="foot">
-<p>本页由决策简报 1.0 从项目的决策地图和决策卡生成，只读这些文件；决定以卡为准，改决定请改卡，再重新生成。</p>
+<p>本页由决策简报 1.0.1 从项目的决策地图和决策卡生成，只读这些文件；决定以卡为准，改决定请改卡，再重新生成。</p>
 <p>链接自检：<!--LINKCHECK--></p>
 </footer>
 </div>
@@ -864,14 +895,15 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const key = argv[i];
     const name = key.slice(2);
-    if ((key === '--source' || key === '--output') && argv[i + 1] !== undefined && !(name in args)) {
+    if (['--source', '--output', '--check'].includes(key) && argv[i + 1] !== undefined && !(name in args)) {
       args[name] = argv[i + 1];
       i += 1;
     } else {
       throw new Error(`决策简报：不认识的参数：${key}`);
     }
   }
-  if (!args.source || !args.output) throw new Error('决策简报：用法 node brief.mjs --source <项目根> --output <HTML 路径>，两项都要给出。');
+  const usable = 'check' in args ? args.check && !args.source && !args.output : args.source && args.output;
+  if (!usable) throw new Error('决策简报：用法 node brief.mjs --source <项目根> --output <HTML 路径>，两项都要给出；只查不写用 node brief.mjs --check <项目根>，不和前两项一起用。');
   return args;
 }
 
@@ -880,7 +912,7 @@ function main() {
   let result;
   try {
     args = parseArgs(process.argv.slice(2));
-    result = buildBrief(args);
+    result = buildBrief(args.check ? { source: args.check } : args);
   } catch (error) {
     if (!(error instanceof BriefError) && !/^决策简报：/.test(error.message)) throw error;
     console.error(error.message);
@@ -888,18 +920,23 @@ function main() {
     return;
   }
   const { html, brief, check } = result;
-  const output = path.resolve(args.output);
-  try {
-    fs.writeFileSync(output, html, 'utf8');
-  } catch (error) {
-    console.error(`决策简报：写不进输出文件 ${output}（${error.code || error.message}）`);
-    process.exitCode = 1;
-    return;
+  if (args.check) {
+    console.log('决策简报：只查不写，没有读不出或对不上的，可以生成；没有写任何文件。');
+  } else {
+    const output = path.resolve(args.output);
+    try {
+      fs.writeFileSync(output, html, 'utf8');
+    } catch (error) {
+      console.error(`决策简报：写不进输出文件 ${output}（${error.code || error.message}）`);
+      process.exitCode = 1;
+      return;
+    }
+    console.log(`决策简报：已生成 ${output}（${Buffer.byteLength(html)} 字节）`);
   }
   const rejected = brief.decided.filter((card) => card.status === '否决').length;
-  console.log(`决策简报：已生成 ${output}（${Buffer.byteLength(html)} 字节）`);
+  const research = brief.researchLinks.cards ? `全部研究卡 ${brief.researchLinks.cards} 张（含被取代的）不上页面，卡里指向文件的链接 ${brief.researchLinks.refs} 处也都存在。` : '';
   console.log(`  ${roundName(brief.map.round.n)}，${brief.map.round.date}：定了 ${brief.decided.length} 项（其中否决 ${rejected} 项），改了旧决定 ${brief.changes.length} 处，带前提 ${brief.premised.length} 项，未定 ${brief.open.length} 项，暂缓 ${brief.deferred.length} 项；研究卡 ${brief.research.length} 张不上首屏`);
-  console.log(`  链接自检：${linkLine(check)}`);
+  console.log(`  链接自检：${linkLine(check)}${research}`);
   for (const note of brief.notes) console.log(`  提示：${note}`);
 }
 
